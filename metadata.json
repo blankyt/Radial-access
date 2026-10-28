@@ -1,0 +1,6 @@
+{
+  "name": "OrbitRadial - Quick Tool & File Radial Interface",
+  "description": "An ultra-responsive radial shortcut wheel for instant tool access, command execution, and custom file workspaces.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
