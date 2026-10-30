@@ -17,6 +17,7 @@ import {
   Layers,
   ChevronRight,
   Zap,
+  Monitor,
 } from 'lucide-react';
 import { soundManager } from '../../utils/audio';
 
@@ -29,6 +30,7 @@ interface RadialCustomizerModalProps {
   onUpdateSettings: (newSettings: RadialSettings) => void;
   onUpdateMenuItems: (newItems: RadialItem[]) => void;
   onAddFolder: (folder: UserFolder) => void;
+  onOpenWindowsNative?: () => void;
 }
 
 const THEMES: { id: RadialTheme; name: string; color: string; desc: string }[] = [
@@ -57,6 +59,7 @@ export const RadialCustomizerModal: React.FC<RadialCustomizerModalProps> = ({
   onUpdateSettings,
   onUpdateMenuItems,
   onAddFolder,
+  onOpenWindowsNative,
 }) => {
   const [activeTab, setActiveTab] = useState<'slots' | 'branding' | 'appearance' | 'triggers'>('slots');
   const [newSlotLabel, setNewSlotLabel] = useState('');
@@ -462,7 +465,7 @@ export const RadialCustomizerModal: React.FC<RadialCustomizerModalProps> = ({
                   onChange={(e) =>
                     onUpdateSettings({ ...settings, customRadialName: e.target.value })
                   }
-                  placeholder="e.g. nearly, Studio Wheel..."
+                  placeholder="e.g. Radial Access, Studio Wheel..."
                   className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
                 />
               </div>
@@ -782,13 +785,28 @@ export const RadialCustomizerModal: React.FC<RadialCustomizerModalProps> = ({
 
         {/* Footer */}
         <div className="px-6 py-3.5 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-          <button
-            onClick={handleResetDefaults}
-            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset to Defaults</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleResetDefaults}
+              className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Defaults</span>
+            </button>
+            {onOpenWindowsNative && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenWindowsNative();
+                }}
+                className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 bg-sky-950/60 border border-sky-800/80 px-2.5 py-1 rounded-lg transition-colors"
+                title="Export configuration and view Windows native Python instructions"
+              >
+                <Monitor className="w-3.5 h-3.5" />
+                <span>Export for Windows (Python)</span>
+              </button>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-lg"

@@ -333,7 +333,7 @@ export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({
                 onChange={(e) =>
                   onUpdateSettings({
                     ...settings,
-                    customRadialName: e.target.value || 'nearly',
+                    customRadialName: e.target.value || 'Radial Access',
                   })
                 }
                 placeholder="Name your Radial..."
@@ -914,7 +914,7 @@ export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({
                 )}
               </div>
               <span className="text-xs font-bold text-white tracking-tight line-clamp-1 max-w-[110px]">
-                {settings.customRadialName || 'nearly'}
+                {settings.customRadialName || 'Radial Access'}
               </span>
               <span className="text-[9px] text-slate-400 font-mono mt-0.5">
                 {menuItems.length} slots · [ESC]

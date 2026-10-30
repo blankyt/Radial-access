@@ -42,7 +42,7 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
   onAddSlotRequest,
 }) => {
   const [menuStack, setMenuStack] = useState<MenuStackEntry[]>([
-    { title: 'nearly', icon: 'Compass', items },
+    { title: settings.customRadialName || 'Radial Access', icon: 'Compass', items },
   ]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [pointerCoord, setPointerCoord] = useState<{ x: number; y: number } | null>(null);
@@ -56,7 +56,7 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
   useEffect(() => {
     setMenuStack([
       {
-        title: settings.customRadialName || 'nearly',
+        title: settings.customRadialName || 'Radial Access',
         icon: settings.customRadialLogoIcon || 'Compass',
         items,
       },
@@ -455,7 +455,7 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
                   />
                 )}
                 <span className="text-[10px] font-bold tracking-tight text-white line-clamp-1 max-w-[80px]">
-                  {settings.customRadialName || 'nearly'}
+                  {settings.customRadialName || 'Radial Access'}
                 </span>
                 <span className="text-[8px] text-slate-400 font-mono mt-0.5">
                   {activeItems.length} slots · [ESC]

@@ -83,8 +83,12 @@ export const storage = {
       const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
       if (!raw) return DEFAULT_SETTINGS;
       const parsed = JSON.parse(raw);
-      if (parsed.customRadialName === 'OrbitRadial' || !parsed.customRadialName) {
-        parsed.customRadialName = 'nearly';
+      if (
+        parsed.customRadialName === 'OrbitRadial' ||
+        parsed.customRadialName === 'nearly' ||
+        !parsed.customRadialName
+      ) {
+        parsed.customRadialName = 'Radial Access';
       }
       return { ...DEFAULT_SETTINGS, ...parsed };
     } catch {

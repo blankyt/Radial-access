@@ -1,0 +1,175 @@
+{
+  "settings": {
+    "app_name": "Radial Access",
+    "tagline": "Native Windows Quick Launcher",
+    "hotkey": "<alt>+<space>",
+    "outer_radius": 170,
+    "inner_radius": 62,
+    "center_deadzone": 38,
+    "theme": {
+      "background": "#0b0f19",
+      "background_alpha": 235,
+      "slice_default": "#131b2e",
+      "slice_hover": "#1e293b",
+      "accent_color": "#0284c7",
+      "accent_secondary": "#6366f1",
+      "text_primary": "#f8fafc",
+      "text_secondary": "#94a3b8",
+      "border_color": "#334155"
+    },
+    "flick_gestures_enabled": true,
+    "flick_threshold_speed": 450.0,
+    "flick_min_distance": 50,
+    "close_on_action": true,
+    "sound_enabled": true
+  },
+  "items": [
+    {
+      "id": "browser",
+      "label": "Browser",
+      "icon": "🌐",
+      "color": "#0284c7",
+      "type": "url",
+      "payload": "https://google.com",
+      "description": "Open default web browser to Google"
+    },
+    {
+      "id": "terminal",
+      "label": "Terminal",
+      "icon": "⚡",
+      "color": "#10b981",
+      "type": "command",
+      "payload": "start wt.exe || start cmd.exe",
+      "description": "Open Windows Terminal or Command Prompt"
+    },
+    {
+      "id": "vscode",
+      "label": "VS Code",
+      "icon": "📝",
+      "color": "#0ea5e9",
+      "type": "command",
+      "payload": "code .",
+      "description": "Launch Visual Studio Code in current directory"
+    },
+    {
+      "id": "calculator",
+      "label": "Calculator",
+      "icon": "🔢",
+      "color": "#f59e0b",
+      "type": "system",
+      "payload": "calc",
+      "description": "Windows Native Calculator"
+    },
+    {
+      "id": "explorer",
+      "label": "Explorer",
+      "icon": "📁",
+      "color": "#eab308",
+      "type": "folder",
+      "payload": "explorer",
+      "description": "Open Windows File Explorer",
+      "children": [
+        {
+          "id": "user_docs",
+          "label": "Documents",
+          "icon": "📄",
+          "color": "#38bdf8",
+          "type": "folder_path",
+          "payload": "%USERPROFILE%\\Documents",
+          "description": "Open Documents folder"
+        },
+        {
+          "id": "user_downloads",
+          "label": "Downloads",
+          "icon": "📥",
+          "color": "#34d399",
+          "type": "folder_path",
+          "payload": "%USERPROFILE%\\Downloads",
+          "description": "Open Downloads folder"
+        },
+        {
+          "id": "user_desktop",
+          "label": "Desktop",
+          "icon": "🖥️",
+          "color": "#818cf8",
+          "type": "folder_path",
+          "payload": "%USERPROFILE%\\Desktop",
+          "description": "Open Desktop folder"
+        },
+        {
+          "id": "drive_c",
+          "label": "Drive C:",
+          "icon": "💾",
+          "color": "#fbbf24",
+          "type": "folder_path",
+          "payload": "C:\\",
+          "description": "Open System Drive C:"
+        }
+      ]
+    },
+    {
+      "id": "notes",
+      "label": "Notepad",
+      "icon": "📋",
+      "color": "#ec4899",
+      "type": "system",
+      "payload": "notepad",
+      "description": "Quick Scratchpad Notepad"
+    },
+    {
+      "id": "screenshot",
+      "label": "Snip Tool",
+      "icon": "✂️",
+      "color": "#a855f7",
+      "type": "system",
+      "payload": "screenshot",
+      "description": "Capture screen area (Windows Snipping Tool)"
+    },
+    {
+      "id": "tools_menu",
+      "label": "System Tools",
+      "icon": "⚙️",
+      "color": "#6366f1",
+      "type": "sub_menu",
+      "description": "Windows Utilities & System Control",
+      "children": [
+        {
+          "id": "taskmgr",
+          "label": "Task Mgr",
+          "icon": "📊",
+          "color": "#ef4444",
+          "type": "system",
+          "payload": "taskmgr",
+          "description": "Open Windows Task Manager"
+        },
+        {
+          "id": "settings",
+          "label": "Win Settings",
+          "icon": "🛠️",
+          "color": "#3b82f6",
+          "type": "command",
+          "payload": "start ms-settings:",
+          "description": "Open Windows Settings"
+        },
+        {
+          "id": "lock_pc",
+          "label": "Lock PC",
+          "icon": "🔒",
+          "color": "#f97316",
+          "type": "system",
+          "payload": "lock",
+          "description": "Lock Windows Workstation"
+        },
+        {
+          "id": "cmd_admin",
+          "label": "PowerShell",
+          "icon": "💻",
+          "color": "#06b6d4",
+          "type": "command",
+          "payload": "start powershell.exe",
+          "description": "Open Windows PowerShell"
+        }
+      ]
+    }
+  ]
+}

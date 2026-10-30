@@ -38,9 +38,9 @@ export const INITIAL_USER_FILES: UserFile[] = [
     folderId: 'folder-docs',
     isPinnedToRadial: true,
     tags: ['docs', 'planning'],
-    content: `# nearly System Architecture
+    content: `# Radial Access System Architecture
 
-Welcome to **nearly**! This radial shortcut wheel allows rapid tool launching, instant formatting, and single-click access to your custom files.
+Welcome to **Radial Access**! This radial shortcut wheel allows rapid tool launching, instant formatting, and single-click access to your custom files.
 
 ## Folders & Suboptions
 - Click any **Folder** wedge in the radial menu to instantly expand into its suboptions!
@@ -65,7 +65,7 @@ Welcome to **nearly**! This radial shortcut wheel allows rapid tool launching, i
     tags: ['config', 'dev'],
     content: JSON.stringify(
       {
-        appName: 'nearly Workspace',
+        appName: 'Radial Access Workspace',
         version: '2.6.0',
         preferences: {
           radialRadius: 180,
@@ -144,7 +144,7 @@ export const DEFAULT_SETTINGS: RadialSettings = {
   customHotkeysEnabled: true,
   flickGestureEnabled: true,
   flickSensitivity: 'normal',
-  customRadialName: 'nearly',
+  customRadialName: 'Radial Access',
   customRadialLogoIcon: 'Compass',
   customRadialTagline: 'Quick Tool & Custom File Interface',
 };

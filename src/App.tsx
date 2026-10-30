@@ -24,14 +24,15 @@ import {
 } from './components/tools/ToolModals';
 import { MuscleMemoryDrillModal } from './components/practice/MuscleMemoryDrillModal';
 import { RadialCustomizerModal } from './components/customizer/RadialCustomizerModal';
+import { WindowsNativeModal } from './components/native/WindowsNativeModal';
 import { Compass } from 'lucide-react';
 
-const INITIAL_BUFFER_TEXT = `// nearly Interactive Workspace
+const INITIAL_BUFFER_TEXT = `// Radial Access Interactive Workspace
 // Right-click ANYWHERE on your screen to spawn the Radial Shortcut Wheel directly at your cursor!
 // Try FLICKING: Drag your mouse quickly in any direction to trigger that item without clicking!
 
 const systemConfig = {
-  radialInterface: "nearly v2.6",
+  radialInterface: "Radial Access v2.6",
   features: [
     "Mouse-Flick Gestures: Drag or swipe quickly to trigger items without clicking",
     "Cursor-centric spawn: Wheel centers exactly on mouse tip",
@@ -69,6 +70,7 @@ export default function App() {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isTimerOpen, setIsTimerOpen] = useState(false);
   const [isTransformerOpen, setIsTransformerOpen] = useState(false);
+  const [isWindowsNativeOpen, setIsWindowsNativeOpen] = useState(false);
 
   // Notifications
   const [statusNotification, setStatusNotification] = useState<string | null>(null);
@@ -446,6 +448,7 @@ export default function App() {
         onOpenFilesHub={() => setIsFilesHubOpen(true)}
         onOpenDrill={() => setIsDrillOpen(true)}
         onOpenCustomizer={() => setIsCustomizerOpen(true)}
+        onOpenWindowsNative={() => setIsWindowsNativeOpen(true)}
         onTriggerRadialCenter={() => openRadialAt(mouseCoordRef.current.x, mouseCoordRef.current.y)}
       />
 
@@ -551,6 +554,15 @@ export default function App() {
         onUpdateSettings={setSettings}
         onUpdateMenuItems={setMenuItems}
         onAddFolder={handleAddFolder}
+        onOpenWindowsNative={() => setIsWindowsNativeOpen(true)}
+      />
+
+      <WindowsNativeModal
+        isOpen={isWindowsNativeOpen}
+        onClose={() => setIsWindowsNativeOpen(false)}
+        settings={settings}
+        menuItems={computedMenuItems}
+        folders={folders}
       />
 
       {/* Floating Glowing Trigger Orb */}

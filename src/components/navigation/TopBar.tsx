@@ -8,6 +8,7 @@ import {
   Target,
   Sliders,
   Sparkles,
+  Monitor,
 } from 'lucide-react';
 import { soundManager } from '../../utils/audio';
 
@@ -18,6 +19,7 @@ interface TopBarProps {
   onOpenFilesHub: () => void;
   onOpenDrill: () => void;
   onOpenCustomizer: () => void;
+  onOpenWindowsNative: () => void;
   onTriggerRadialCenter: () => void;
 }
 
@@ -28,6 +30,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   onOpenFilesHub,
   onOpenDrill,
   onOpenCustomizer,
+  onOpenWindowsNative,
   onTriggerRadialCenter,
 }) => {
   const toggleSound = () => {
@@ -55,7 +58,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-bold text-sm text-white tracking-tight">
-              {settings.customRadialName || 'nearly'}
+              {settings.customRadialName || 'Radial Access'}
             </h1>
             <span className="text-[10px] text-sky-400 font-mono bg-sky-950/80 border border-sky-800/80 px-1.5 py-0.2 rounded">
               v2.5
@@ -81,6 +84,19 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       {/* Right Controls */}
       <div className="flex items-center gap-2">
+        {/* Windows Native (Python) Button */}
+        <button
+          onClick={onOpenWindowsNative}
+          className="px-3 py-1.5 rounded-lg border border-sky-800/80 bg-sky-950/60 hover:bg-sky-900/60 text-sky-200 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm hover:border-sky-700"
+          title="Run natively on Windows using Python / PyQt6"
+        >
+          <Monitor className="w-3.5 h-3.5 text-sky-400" />
+          <span>Windows App (Python)</span>
+          <span className="text-[9px] bg-sky-500/20 text-sky-300 font-mono px-1 py-0.2 rounded border border-sky-500/30">
+            Native
+          </span>
+        </button>
+
         {/* Files Hub Button */}
         <button
           onClick={onOpenFilesHub}
