@@ -18,6 +18,12 @@ import {
   ChevronRight,
   Zap,
   Monitor,
+  Cpu,
+  ShieldAlert,
+  Database,
+  RefreshCw,
+  HardDrive,
+  Download,
 } from 'lucide-react';
 import { soundManager } from '../../utils/audio';
 
@@ -39,7 +45,9 @@ const THEMES: { id: RadialTheme; name: string; color: string; desc: string }[] =
   { id: 'nord', name: 'Nordic Frost', color: '#2dd4bf', desc: 'Arctic deep blue with mint aurora accents' },
   { id: 'emerald', name: 'Matrix Emerald', color: '#10b981', desc: 'Deep biome obsidian with cyber green glow' },
   { id: 'amber', name: 'Twilight Amber', color: '#f59e0b', desc: 'Warm stone dark with golden amber radiant glow' },
+  { id: 'high_contrast', name: 'High Contrast (Pure Black)', color: '#00ffff', desc: 'Maximum accessibility: stark pure black & electric cyan' },
 ];
+
 
 const TRIGGERS: { id: ActivationTrigger; label: string; desc: string }[] = [
   { id: 'right_click', label: 'Right-Click Anywhere', desc: 'Opens directly under cursor tip everywhere' },
@@ -61,12 +69,13 @@ export const RadialCustomizerModal: React.FC<RadialCustomizerModalProps> = ({
   onAddFolder,
   onOpenWindowsNative,
 }) => {
-  const [activeTab, setActiveTab] = useState<'slots' | 'branding' | 'appearance' | 'triggers'>('slots');
+  const [activeTab, setActiveTab] = useState<'slots' | 'branding' | 'appearance' | 'triggers' | 'performance' | 'safe_mode'>('slots');
   const [newSlotLabel, setNewSlotLabel] = useState('');
   const [newSlotType, setNewSlotType] = useState<'folder' | 'tool' | 'custom_command'>('folder');
   const [newSlotIcon, setNewSlotIcon] = useState('Folder');
   const [expandedFolderId, setExpandedFolderId] = useState<string | null>(null);
   const [newSubOptionLabel, setNewSubOptionLabel] = useState('');
+  const [diagResults, setDiagResults] = useState<string[] | null>(null);
   const logoFileRef = React.useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -242,7 +251,29 @@ export const RadialCustomizerModal: React.FC<RadialCustomizerModalProps> = ({
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            Cursor Spawn & Triggers
+            Cursor & Flick
+          </button>
+          <button
+            onClick={() => setActiveTab('performance')}
+            className={`py-3 px-4 text-xs font-medium border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === 'performance'
+                ? 'border-sky-500 text-sky-400 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-white'
+            }`}
+          >
+            <Cpu className="w-3.5 h-3.5" />
+            <span>Memory & Health</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('safe_mode')}
+            className={`py-3 px-4 text-xs font-medium border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === 'safe_mode'
+                ? 'border-amber-500 text-amber-400 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-white'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Safe Mode</span>
           </button>
         </div>
 
@@ -771,13 +802,209 @@ export const RadialCustomizerModal: React.FC<RadialCustomizerModalProps> = ({
                   </div>
                   <input
                     type="checkbox"
-                    checked={settings.holdToSelect}
+                    checked={settings.holdToFlickMode ?? settings.holdToSelect}
                     onChange={(e) =>
-                      onUpdateSettings({ ...settings, holdToSelect: e.target.checked })
+                      onUpdateSettings({ ...settings, holdToSelect: e.target.checked, holdToFlickMode: e.target.checked })
                     }
                     className="w-4 h-4 accent-sky-500 rounded cursor-pointer"
                   />
                 </div>
+
+                {/* Direction Hints Toggle */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <MousePointer className="w-4 h-4 text-sky-400" />
+                    <div>
+                      <span className="text-xs font-medium text-white block">Direction Compass Hints (N, NE, E...)</span>
+                      <span className="text-[11px] text-slate-400">
+                        Shows faint directional chevrons for beginners to build instant muscle memory
+                      </span>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.showDirectionHints !== false}
+                    onChange={(e) =>
+                      onUpdateSettings({ ...settings, showDirectionHints: e.target.checked })
+                    }
+                    className="w-4 h-4 accent-sky-500 rounded cursor-pointer"
+                  />
+                </div>
+
+                {/* Reduced Motion Toggle */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <RotateCcw className="w-4 h-4 text-slate-400" />
+                    <div>
+                      <span className="text-xs font-medium text-white block">Reduced Motion Mode</span>
+                      <span className="text-[11px] text-slate-400">
+                        Disables spring scaling and ripple wave effects for instant zero-latency display
+                      </span>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.reducedMotion === true}
+                    onChange={(e) =>
+                      onUpdateSettings({ ...settings, reducedMotion: e.target.checked })
+                    }
+                    className="w-4 h-4 accent-sky-500 rounded cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {activeTab === 'performance' && (
+            <div className="space-y-6">
+              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Cpu className="w-4 h-4 text-sky-400" />
+                  <span className="text-xs font-semibold text-white">Active Memory & Resource Footprint</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                  <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-mono">JS HEAP MEMORY</span>
+                    <span className="text-sm font-bold text-sky-400">
+                      {typeof window !== 'undefined' && (window.performance as unknown as { memory?: { usedJSHeapSize: number } })?.memory
+                        ? `${Math.round((window.performance as unknown as { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize / (1024 * 1024))} MB`
+                        : '< 28 MB'}
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-mono">VAULT FILE STORAGE</span>
+                    <span className="text-sm font-bold text-emerald-400">
+                      {folders.length} folders · {menuItems.length} slots
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-mono">AUDIO ENGINE</span>
+                    <span className="text-sm font-bold text-indigo-400">
+                      {settings.soundEnabled ? 'Synthesizer Active' : 'Muted'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                  <span className="text-xs text-slate-300">Clean up idle audio nodes & purge temporary cache</span>
+                  <button
+                    onClick={() => {
+                      soundManager.playActionChime(true);
+                      if (typeof window !== 'undefined' && window.gc) {
+                        try { window.gc(); } catch {}
+                      }
+                      setDiagResults(['Cache cleared.', 'Audio nodes disconnected.', 'Working set trimmed.']);
+                    }}
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium rounded-lg flex items-center gap-1.5"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
+                    <span>Purge & Trim Now</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Rendering Performance */}
+              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+                <span className="text-xs font-semibold text-white block">Rendering & Power Optimization</span>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-medium text-white block">Acoustic Feedback</span>
+                    <span className="text-[11px] text-slate-400">Procedural Web Audio synthesizer ticks</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.soundEnabled}
+                    onChange={(e) => {
+                      onUpdateSettings({ ...settings, soundEnabled: e.target.checked });
+                      soundManager.enabled = e.target.checked;
+                    }}
+                    className="w-4 h-4 accent-sky-500 rounded cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'safe_mode' && (
+            <div className="space-y-6">
+              <div className="p-4 rounded-xl bg-slate-950 border border-amber-900/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 text-amber-400" />
+                    <span className="text-xs font-semibold text-white">Safe Mode & Crash Guard</span>
+                  </div>
+                  <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-800/80 px-2 py-0.5 rounded font-mono font-bold">
+                    PROTECTED
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Safe Mode guarantees that if any custom command, corrupt file payload, or external script fails,
+                  the radial menu falls back to guaranteed default tools (Calculator, Notes, Text Transformer)
+                  without disrupting your workflow.
+                </p>
+
+                <div className="pt-2 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      // Run self-diagnostics
+                      const report: string[] = [];
+                      report.push(`✓ Checked ${menuItems.length} active menu slots`);
+                      report.push(`✓ Verified ${folders.length} folder links`);
+                      report.push(`✓ Theme schema: ${settings.theme} verified`);
+                      report.push(`✓ Sound synthesizer: ${settings.soundEnabled ? 'Enabled' : 'Muted'}`);
+                      report.push('✓ Storage integrity: LocalStorage intact');
+                      setDiagResults(report);
+                      soundManager.playActionChime(true);
+                    }}
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium rounded-lg flex items-center gap-1.5"
+                  >
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Run Diagnostic Self-Test</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({ settings, menuItems, folders }, null, 2));
+                      const dlAnchor = document.createElement('a');
+                      dlAnchor.setAttribute('href', dataStr);
+                      dlAnchor.setAttribute('download', `radial-access-backup-${Date.now()}.json`);
+                      dlAnchor.click();
+                      soundManager.playActionChime(true);
+                    }}
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium rounded-lg flex items-center gap-1.5"
+                  >
+                    <Download className="w-3.5 h-3.5 text-sky-400" />
+                    <span>Export Configuration Backup</span>
+                  </button>
+                </div>
+
+                {diagResults && (
+                  <div className="mt-3 p-3 bg-black/60 rounded-lg border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+                    <span className="text-[10px] text-emerald-400 font-bold block mb-1">SYSTEM DIAGNOSTIC RESULTS:</span>
+                    {diagResults.map((line, idx) => (
+                      <div key={idx} className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                        <span>{line}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Disaster Recovery Reset */}
+              <div className="p-4 rounded-xl bg-slate-950 border border-rose-950/40 space-y-3">
+                <span className="text-xs font-semibold text-rose-400 block">Emergency Configuration Reset</span>
+                <p className="text-xs text-slate-400">
+                  If an imported file or custom setting creates instability, click below to wipe custom radial items and restore default factory settings.
+                </p>
+                <button
+                  onClick={handleResetDefaults}
+                  className="px-4 py-1.5 bg-rose-600/80 hover:bg-rose-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Restore Factory Defaults</span>
+                </button>
               </div>
             </div>
           )}

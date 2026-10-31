@@ -36,7 +36,7 @@ if exist "venv\Scripts\python.exe" (
     echo [*] Starting Radial Access Native Overlay...
     echo [*] Global Hotkey: Alt+Space (or click the tray icon in taskbar)
     echo.
-    python main.py
+    python main.py %*
     goto end
 )
 
@@ -47,7 +47,7 @@ echo.
 echo [*] Starting Radial Access Native Overlay...
 echo [*] Global Hotkey: Alt+Space (or click the tray icon in taskbar)
 echo.
-python main.py
+python main.py %*
 
 :end
 if %errorlevel% neq 0 (

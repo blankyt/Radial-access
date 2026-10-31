@@ -2,11 +2,15 @@
   "settings": {
     "app_name": "Radial Access",
     "tagline": "Native Windows Quick Launcher",
-    "hotkey": "<alt>+<space>",
+    "hotkey": "<alt>+g",
+    "mouse_trigger": "middle_click",
+    "settings_hotkey": "<ctrl>+<alt>+s",
     "outer_radius": 170,
     "inner_radius": 62,
     "center_deadzone": 38,
+    "fps_limit": 60,
     "theme": {
+      "name": "Obsidian Sky",
       "background": "#0b0f19",
       "background_alpha": 235,
       "slice_default": "#131b2e",
@@ -18,11 +22,18 @@
       "border_color": "#334155"
     },
     "flick_gestures_enabled": true,
+    "hold_to_flick_mode": true,
+    "show_direction_hints": true,
+    "context_switching_enabled": true,
     "flick_threshold_speed": 450.0,
     "flick_min_distance": 50,
+    "hover_tooltip_delay": 0.35,
     "close_on_action": true,
-    "sound_enabled": true
+    "sound_enabled": false,
+    "auto_trim_memory": true,
+    "safe_mode": false
   },
+
   "items": [
     {
       "id": "browser",
@@ -103,38 +114,38 @@
           "color": "#fbbf24",
           "type": "folder_path",
           "payload": "C:\\",
-          "description": "Open System Drive C:"
+          "description": "Open Local Disk C:"
         }
       ]
     },
     {
-      "id": "notes",
+      "id": "notepad",
       "label": "Notepad",
       "icon": "📋",
       "color": "#ec4899",
       "type": "system",
       "payload": "notepad",
-      "description": "Quick Scratchpad Notepad"
+      "description": "Quick Scratchpad in Notepad"
     },
     {
-      "id": "screenshot",
+      "id": "snipping_tool",
       "label": "Snip Tool",
       "icon": "✂️",
       "color": "#a855f7",
       "type": "system",
       "payload": "screenshot",
-      "description": "Capture screen area (Windows Snipping Tool)"
+      "description": "Windows Snipping / Screen Clip Tool"
     },
     {
-      "id": "tools_menu",
-      "label": "System Tools",
+      "id": "system_tools",
+      "label": "System",
       "icon": "⚙️",
       "color": "#6366f1",
       "type": "sub_menu",
-      "description": "Windows Utilities & System Control",
+      "description": "Quick system utilities and diagnostic tools",
       "children": [
         {
-          "id": "taskmgr",
+          "id": "task_manager",
           "label": "Task Mgr",
           "icon": "📊",
           "color": "#ef4444",
@@ -143,8 +154,8 @@
           "description": "Open Windows Task Manager"
         },
         {
-          "id": "settings",
-          "label": "Win Settings",
+          "id": "windows_settings",
+          "label": "Settings",
           "icon": "🛠️",
           "color": "#3b82f6",
           "type": "command",
@@ -152,7 +163,7 @@
           "description": "Open Windows Settings"
         },
         {
-          "id": "lock_pc",
+          "id": "lock_screen",
           "label": "Lock PC",
           "icon": "🔒",
           "color": "#f97316",
@@ -161,13 +172,13 @@
           "description": "Lock Windows Workstation"
         },
         {
-          "id": "cmd_admin",
+          "id": "powershell_cmd",
           "label": "PowerShell",
           "icon": "💻",
           "color": "#06b6d4",
           "type": "command",
           "payload": "start powershell.exe",
-          "description": "Open Windows PowerShell"
+          "description": "Launch PowerShell Window"
         }
       ]
     }

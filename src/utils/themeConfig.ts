@@ -92,4 +92,20 @@ export const THEME_CONFIG: Record<RadialTheme, ThemeColors> = {
     sectorActive: 'rgba(245, 158, 11, 0.28)',
     hubBg: 'rgba(20, 18, 16, 0.97)',
   },
+  high_contrast: {
+    bgApp: 'bg-black',
+    bgCanvas: 'bg-black',
+    bgPanel: 'bg-black',
+    bgHover: 'bg-neutral-900',
+    border: 'border-white',
+    textPrimary: 'text-white',
+    textSecondary: 'text-neutral-300',
+    accent: '#00ffff',
+    accentGlow: 'rgba(0, 255, 255, 0.8)',
+    sectorNormal: 'rgba(0, 0, 0, 0.98)',
+    sectorHover: 'rgba(24, 24, 27, 1)',
+    sectorActive: 'rgba(0, 255, 255, 0.4)',
+    hubBg: 'rgba(0, 0, 0, 1)',
+  },
 };
+

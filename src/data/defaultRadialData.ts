@@ -133,21 +133,27 @@ export const DEFAULT_SETTINGS: RadialSettings = {
   outerRadius: 180,
   innerRadius: 65,
   centerDeadzone: 44,
-  soundEnabled: true,
-  activationTrigger: 'right_click',
+  soundEnabled: false, // subtle, off by default, zero latency
+  activationTrigger: 'middle_click',
   holdToSelect: false,
+  holdToFlickMode: true, // press & hold -> flick -> release to fire
   showDirectionLine: true,
-  hapticBlip: true,
+  showDirectionHints: true, // faint directional chevrons for beginners
+  hapticBlip: false,
   sectorCount: 8,
   autoFitSectors: true,
   showAddSlotButton: true,
   customHotkeysEnabled: true,
+  reducedMotion: false,
+  highContrastMode: false,
+  activeContext: 'global',
   flickGestureEnabled: true,
   flickSensitivity: 'normal',
   customRadialName: 'Radial Access',
   customRadialLogoIcon: 'Compass',
   customRadialTagline: 'Quick Tool & Custom File Interface',
 };
+
 
 export const DEFAULT_ROOT_MENU: RadialItem[] = [
   {

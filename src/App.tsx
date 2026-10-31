@@ -25,21 +25,25 @@ import {
 import { MuscleMemoryDrillModal } from './components/practice/MuscleMemoryDrillModal';
 import { RadialCustomizerModal } from './components/customizer/RadialCustomizerModal';
 import { WindowsNativeModal } from './components/native/WindowsNativeModal';
+import { SpeedBenchmarkModal } from './components/tools/SpeedBenchmarkModal';
+import { WheelPacksModal } from './components/customizer/WheelPacksModal';
+import { WHEEL_PACKS } from './data/wheelPacks';
+import { ContextProfile, WheelPack } from './types/radial';
 import { Compass } from 'lucide-react';
 
 const INITIAL_BUFFER_TEXT = `// Radial Access Interactive Workspace
-// Right-click ANYWHERE on your screen to spawn the Radial Shortcut Wheel directly at your cursor!
+// Right-click or Middle-click ANYWHERE on your screen to spawn the Radial Shortcut Wheel directly at your cursor!
 // Try FLICKING: Drag your mouse quickly in any direction to trigger that item without clicking!
 
 const systemConfig = {
-  radialInterface: "Radial Access v2.6",
+  radialInterface: "Radial Access v2.8",
   features: [
-    "Mouse-Flick Gestures: Drag or swipe quickly to trigger items without clicking",
-    "Cursor-centric spawn: Wheel centers exactly on mouse tip",
-    "Folder Suboptions: Click or flick into any folder to drill down into its sub-wheel",
-    "Configurable slots: 6, 8, 10, 12, 14, 16 slots or dynamic auto-fit",
-    "Custom Logo & Name branding on radial center hub",
-    "Add your own custom files & folders"
+    "Marking Menu Mode: Press & hold -> flick -> release to execute without second click",
+    "Cursor-centric spawn: Wheel centers exactly on mouse tip (Distance = 0)",
+    "Fitts's Law Target Geometry: Infinite angular wedge depth",
+    "Context-Aware Wheels: Specialized profiles for Developer, Designer, Video & Daily",
+    "Reduced Motion & High Contrast accessibility modes",
+    "Zero Telemetry, 100% offline, zero keystroke logging"
   ]
 };
 
@@ -71,6 +75,9 @@ export default function App() {
   const [isTimerOpen, setIsTimerOpen] = useState(false);
   const [isTransformerOpen, setIsTransformerOpen] = useState(false);
   const [isWindowsNativeOpen, setIsWindowsNativeOpen] = useState(false);
+  const [isBenchmarkOpen, setIsBenchmarkOpen] = useState(false);
+  const [isPacksOpen, setIsPacksOpen] = useState(false);
+
 
   // Notifications
   const [statusNotification, setStatusNotification] = useState<string | null>(null);
@@ -135,6 +142,13 @@ export default function App() {
         activeEl instanceof HTMLInputElement ||
         activeEl instanceof HTMLTextAreaElement ||
         (activeEl as HTMLElement)?.isContentEditable;
+
+      // Global shortcut for User Settings (Ctrl+, or Alt+Shift+S)
+      if ((e.key === ',' && (e.ctrlKey || e.metaKey)) || (e.altKey && e.shiftKey && e.code === 'KeyS')) {
+        e.preventDefault();
+        setIsCustomizerOpen(true);
+        return;
+      }
 
       // Spacebar summon if not actively typing
       if (e.code === 'Space' && !isInput && !isRadialOpen) {
@@ -231,6 +245,9 @@ export default function App() {
         if (item.systemAction === 'files_hub') setIsFilesHubOpen(true);
         else if (item.systemAction === 'drill_mode') setIsDrillOpen(true);
         else if (item.systemAction === 'customize') setIsCustomizerOpen(true);
+        else if (item.systemAction === 'benchmark') setIsBenchmarkOpen(true);
+        else if (item.systemAction === 'packs') setIsPacksOpen(true);
+        else if (item.systemAction === 'open_native_modal') setIsWindowsNativeOpen(true);
         else if (item.systemAction === 'clear_canvas') {
           setBufferText('');
           showStatus('Canvas cleared');
@@ -238,6 +255,9 @@ export default function App() {
         break;
       }
       case 'custom_command': {
+        if (item.customPayload?.startsWith('http')) {
+          window.open(item.customPayload, '_blank', 'noopener,noreferrer');
+        }
         showStatus(`Executed "${item.label}"`);
         break;
       }
@@ -247,6 +267,17 @@ export default function App() {
       }
     }
   };
+
+  // Switch Active Context Profile (Global, VS Code, Figma, Premiere)
+  const handleSwitchContext = useCallback((context: ContextProfile) => {
+    setSettings((prev) => ({ ...prev, activeContext: context }));
+    const pack = WHEEL_PACKS.find((p) => p.context === context);
+    if (pack) {
+      setMenuItems(pack.items);
+      showStatus(`Context profile activated: ${pack.name}`);
+    }
+  }, []);
+
 
   // Text Transform Handler
   const handleTextAction = (action?: string) => {
@@ -449,6 +480,9 @@ export default function App() {
         onOpenDrill={() => setIsDrillOpen(true)}
         onOpenCustomizer={() => setIsCustomizerOpen(true)}
         onOpenWindowsNative={() => setIsWindowsNativeOpen(true)}
+        onOpenBenchmark={() => setIsBenchmarkOpen(true)}
+        onOpenPacks={() => setIsPacksOpen(true)}
+        onSwitchContext={handleSwitchContext}
         onTriggerRadialCenter={() => openRadialAt(mouseCoordRef.current.x, mouseCoordRef.current.y)}
       />
 
@@ -466,11 +500,15 @@ export default function App() {
         onOpenFilesHub={() => setIsFilesHubOpen(true)}
         onOpenDrill={() => setIsDrillOpen(true)}
         onOpenCustomizer={() => setIsCustomizerOpen(true)}
+        onOpenBenchmark={() => setIsBenchmarkOpen(true)}
+        onOpenPacks={() => setIsPacksOpen(true)}
+        onOpenWindowsNative={() => setIsWindowsNativeOpen(true)}
         onDropFiles={handleDropFiles}
         lastActionMessage={statusNotification}
         bufferText={bufferText}
         setBufferText={setBufferText}
       />
+
 
       {/* Radial Menu Overlay (Centered directly at cursor) */}
       <RadialMenuOverlay
@@ -481,6 +519,7 @@ export default function App() {
         onClose={() => setIsRadialOpen(false)}
         onSelectItem={handleSelectRadialItem}
         onAddSlotRequest={() => setIsCustomizerOpen(true)}
+        onOpenSettings={() => setIsCustomizerOpen(true)}
       />
 
       {/* Dedicated Modals & Tool Windows */}
@@ -564,6 +603,33 @@ export default function App() {
         menuItems={computedMenuItems}
         folders={folders}
       />
+
+      <SpeedBenchmarkModal
+        isOpen={isBenchmarkOpen}
+        onClose={() => setIsBenchmarkOpen(false)}
+        onOpenDrill={() => {
+          setIsBenchmarkOpen(false);
+          setIsDrillOpen(true);
+        }}
+      />
+
+      <WheelPacksModal
+        isOpen={isPacksOpen}
+        currentSettings={settings}
+        currentMenuItems={menuItems}
+        onClose={() => setIsPacksOpen(false)}
+        onApplyPack={(pack: WheelPack) => {
+          setMenuItems(pack.items);
+          setSettings((prev) => ({ ...prev, activeContext: pack.context }));
+          showStatus(`Applied ${pack.name}!`);
+        }}
+        onUpdateSettings={setSettings}
+        onImportMenuItems={(imported) => {
+          setMenuItems(imported);
+          showStatus('Imported wheel pack successfully!');
+        }}
+      />
+
 
       {/* Floating Glowing Trigger Orb */}
       <div className="fixed bottom-6 right-6 z-40">

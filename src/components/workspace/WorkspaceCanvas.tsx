@@ -27,6 +27,8 @@ import {
   Palette,
   Eye,
   RotateCcw,
+  Target,
+  Monitor,
 } from 'lucide-react';
 import { DynamicIcon } from '../common/DynamicIcon';
 import { soundManager } from '../../utils/audio';
@@ -44,11 +46,15 @@ interface WorkspaceCanvasProps {
   onOpenFilesHub: () => void;
   onOpenDrill: () => void;
   onOpenCustomizer: () => void;
+  onOpenBenchmark?: () => void;
+  onOpenPacks?: () => void;
+  onOpenWindowsNative?: () => void;
   onDropFiles: (files: FileList) => void;
   lastActionMessage: string | null;
   bufferText: string;
   setBufferText: (text: string) => void;
 }
+
 
 const PRESET_ICONS = ['Compass', 'Zap', 'Flame', 'Cpu', 'Terminal', 'Sparkles', 'Layers', 'Code'];
 const PRESET_COLORS = ['#38bdf8', '#a855f7', '#fbbf24', '#10b981', '#f43f5e', '#ec4899', '#f97316', '#6366f1'];
@@ -66,12 +72,16 @@ export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({
   onOpenFilesHub,
   onOpenDrill,
   onOpenCustomizer,
+  onOpenBenchmark,
+  onOpenPacks,
+  onOpenWindowsNative,
   onDropFiles,
   lastActionMessage,
   bufferText,
   setBufferText,
 }) => {
   const [activeTab, setActiveTab] = useState<'slots_builder' | 'sandbox' | 'branding'>('slots_builder');
+
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [copied, setCopied] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -288,6 +298,103 @@ export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({
         }
       }}
     >
+      {/* Hero Playground & Native Desktop Repositioning Banner */}
+      <div className="rounded-2xl p-6 bg-gradient-to-br from-slate-900/90 via-slate-950 to-sky-950/40 border border-slate-800 shadow-2xl relative overflow-hidden backdrop-blur-md">
+        {/* Subtle glowing ambient background */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 bg-sky-950 border border-sky-800/80 px-2 py-0.5 rounded-full font-semibold">
+                Interactive Web Playground
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">·</span>
+              <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Zero-Install Sandbox
+              </span>
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              The Ergonomic Marking Menu & Quick Launcher
+            </h2>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Experience zero-travel motor memory. Grounded in Gordon Kurtenbach & William Buxton’s seminal marking menu research (1993), every target is an equidistant angular wedge with infinite depth.
+            </p>
+
+            {/* 3-Step Visual Interaction Diagram */}
+            <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px]">
+              <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/90 flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-sky-950 text-sky-400 border border-sky-800 flex items-center justify-center font-bold text-[10px] shrink-0">1</span>
+                <div>
+                  <strong className="text-white block font-medium">Summon at Cursor</strong>
+                  <span className="text-slate-400 text-[10px]">Distance = 0 travel time</span>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/90 flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-800 flex items-center justify-center font-bold text-[10px] shrink-0">2</span>
+                <div>
+                  <strong className="text-white block font-medium">Directional Flick</strong>
+                  <span className="text-slate-400 text-[10px]">Infinite angular target width</span>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/90 flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">3</span>
+                <div>
+                  <strong className="text-white block font-medium">Release to Fire</strong>
+                  <span className="text-slate-400 text-[10px]">Executed in ~0.22s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Playground Action Column */}
+          <div className="flex flex-col gap-2.5 shrink-0 sm:min-w-[210px]">
+            <button
+              onClick={(e) => {
+                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                onOpenRadialAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+              }}
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 hover:from-sky-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-sky-950/50 flex items-center justify-center gap-2 transition-transform active:scale-95"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Test Radial Wheel Now</span>
+            </button>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={onOpenDrill}
+                className="py-2 px-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-orange-300 font-medium text-[11px] rounded-xl border border-orange-500/30 flex items-center justify-center gap-1.5 transition-colors"
+                title="Practice sub-200ms flick reflex"
+              >
+                <Target className="w-3.5 h-3.5 text-orange-400" />
+                <span>Trainer</span>
+              </button>
+
+              <button
+                onClick={onOpenBenchmark}
+                className="py-2 px-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-emerald-300 font-medium text-[11px] rounded-xl border border-emerald-500/30 flex items-center justify-center gap-1.5 transition-colors"
+                title="View speed proof & competitor matrix"
+              >
+                <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Speed Proof</span>
+              </button>
+            </div>
+
+            <button
+              onClick={onOpenWindowsNative}
+              className="w-full py-1.5 px-3 bg-sky-950/50 hover:bg-sky-900/50 text-sky-300 text-[10px] rounded-lg border border-sky-800/60 flex items-center justify-center gap-1.5 transition-colors font-mono"
+            >
+              <Monitor className="w-3 h-3 text-sky-400" />
+              <span>Launch Desktop .exe (Python)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Background Interface Header & Mode Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
         {/* Left: Branding Quick Info & Name Field */}
@@ -295,6 +402,7 @@ export const WorkspaceCanvas: React.FC<WorkspaceCanvasProps> = ({
           <div className="relative group">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 p-0.5 flex items-center justify-center shadow-lg shadow-sky-500/20">
               <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center overflow-hidden">
+
                 {settings.customRadialLogoUrl ? (
                   <img
                     src={settings.customRadialLogoUrl}

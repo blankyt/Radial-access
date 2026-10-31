@@ -1,11 +1,13 @@
 /**
  * Procedural Audio Synthesizer for high-tech radial tactile feedback
  * Uses Web Audio API without requiring any external mp3 files.
+ * Optimized with explicit node disconnects and idle context suspension to avoid memory leaks.
  */
 
 class AudioSynthesizer {
   private ctx: AudioContext | null = null;
   public enabled: boolean = true;
+  private suspendTimer: NodeJS.Timeout | null = null;
 
   private initCtx() {
     if (!this.ctx && typeof window !== 'undefined') {
@@ -17,6 +19,27 @@ class AudioSynthesizer {
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
     }
+
+    // Schedule idle suspension to save memory and battery
+    if (this.suspendTimer) {
+      clearTimeout(this.suspendTimer);
+    }
+    this.suspendTimer = setTimeout(() => {
+      if (this.ctx && this.ctx.state === 'running') {
+        this.ctx.suspend().catch(() => {});
+      }
+    }, 15000);
+  }
+
+  private wireNodeCleanup(osc: OscillatorNode, gain: GainNode) {
+    osc.onended = () => {
+      try {
+        osc.disconnect();
+        gain.disconnect();
+      } catch {
+        // Safe cleanup ignore
+      }
+    };
   }
 
   // Subtle tick on sector hover
@@ -28,6 +51,7 @@ class AudioSynthesizer {
 
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
+      this.wireNodeCleanup(osc, gain);
 
       const baseFreq = 420 + (pitchOffset * 40);
       osc.type = 'sine';
@@ -57,6 +81,7 @@ class AudioSynthesizer {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
+      this.wireNodeCleanup(osc, gain);
 
       osc.type = 'triangle';
       if (success) {
@@ -90,6 +115,7 @@ class AudioSynthesizer {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
+      this.wireNodeCleanup(osc, gain);
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(320, now);
@@ -118,6 +144,7 @@ class AudioSynthesizer {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
+      this.wireNodeCleanup(osc, gain);
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(520, now);
@@ -146,6 +173,7 @@ class AudioSynthesizer {
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
+      this.wireNodeCleanup(osc, gain);
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(440, now);
@@ -161,6 +189,18 @@ class AudioSynthesizer {
       osc.stop(now + 0.12);
     } catch {
       // Audio playback best effort
+    }
+  }
+
+  // Dispose context if needed
+  dispose() {
+    if (this.suspendTimer) {
+      clearTimeout(this.suspendTimer);
+      this.suspendTimer = null;
+    }
+    if (this.ctx) {
+      this.ctx.close().catch(() => {});
+      this.ctx = null;
     }
   }
 }

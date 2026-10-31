@@ -6,7 +6,7 @@ import { soundManager } from '../../utils/audio';
 import { THEME_CONFIG } from '../../utils/themeConfig';
 import { RadialSector } from './RadialSector';
 import { DynamicIcon } from '../common/DynamicIcon';
-import { X, ArrowLeft, ChevronRight, MousePointerClick, Folder, FileText } from 'lucide-react';
+import { X, ArrowLeft, ChevronRight, MousePointerClick, Folder, FileText, Settings } from 'lucide-react';
 
 interface RadialMenuOverlayProps {
   isOpen: boolean;
@@ -16,6 +16,7 @@ interface RadialMenuOverlayProps {
   onClose: () => void;
   onSelectItem: (item: RadialItem) => void;
   onAddSlotRequest?: () => void;
+  onOpenSettings?: () => void;
 }
 
 interface MenuStackEntry {
@@ -40,6 +41,7 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
   onClose,
   onSelectItem,
   onAddSlotRequest,
+  onOpenSettings,
 }) => {
   const [menuStack, setMenuStack] = useState<MenuStackEntry[]>([
     { title: settings.customRadialName || 'Radial Access', icon: 'Compass', items },
@@ -260,7 +262,20 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
     [clampedX, clampedY, settings.centerDeadzone, dynamicRadius, activeItems.length]
   );
 
-  // Keyboard navigation
+  // Hold-to-flick marking menu: releasing mouse button outside deadzone fires hovered item!
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>) => {
+      if (settings.holdToFlickMode && hoveredIndex !== null && activeItems[hoveredIndex]) {
+        e.preventDefault();
+        e.stopPropagation();
+        const selected = activeItems[hoveredIndex];
+        handleItemClick(selected);
+      }
+    },
+    [settings.holdToFlickMode, hoveredIndex, activeItems, handleItemClick]
+  );
+
+  // Keyboard navigation & accessibility
   useEffect(() => {
     if (!isOpen) return;
 
@@ -277,8 +292,60 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
         return;
       }
 
-      // Check number keys 1-9
-      const num = parseInt(e.key, 10);
+      // Enter / Space executes current hovered item
+      if (e.key === 'Enter' || (e.key === ' ' && hoveredIndex !== null)) {
+        e.preventDefault();
+        if (hoveredIndex !== null && activeItems[hoveredIndex]) {
+          handleItemClick(activeItems[hoveredIndex]);
+        }
+        return;
+      }
+
+      // Arrow key navigation to select sector by compass direction
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setHoveredIndex(0); // North
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const eastIdx = Math.round(activeItems.length * 0.25) % activeItems.length;
+        setHoveredIndex(eastIdx); // East
+        return;
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const southIdx = Math.round(activeItems.length * 0.5) % activeItems.length;
+        setHoveredIndex(southIdx); // South
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const westIdx = Math.round(activeItems.length * 0.75) % activeItems.length;
+        setHoveredIndex(westIdx); // West
+        return;
+      }
+
+      // Quick access to Settings (Ctrl+, or S)
+      if (
+        (e.key === ',' && (e.ctrlKey || e.metaKey)) ||
+        (e.key.toLowerCase() === 's' && !e.ctrlKey && !e.metaKey && !e.altKey)
+      ) {
+        e.preventDefault();
+        soundManager.playCloseSound();
+        onClose();
+        onOpenSettings?.();
+        return;
+      }
+
+      // Check number keys 1-9 or Numpad keys 1-9
+      let numStr: string | null = null;
+      if (/^[1-9]$/.test(e.key)) {
+        numStr = e.key;
+      } else if (e.code.startsWith('Numpad')) {
+        numStr = e.code.replace('Numpad', '');
+      }
+      const num = numStr ? parseInt(numStr, 10) : NaN;
       if (!isNaN(num) && num >= 1 && num <= activeItems.length) {
         e.preventDefault();
         const selected = activeItems[num - 1];
@@ -290,7 +357,8 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, activeItems, handleItemClick, handleBack, onClose, isSubMenu]);
+  }, [isOpen, activeItems, hoveredIndex, handleItemClick, handleBack, onClose, onOpenSettings, isSubMenu]);
+
 
   if (!isOpen) return null;
 
@@ -303,7 +371,10 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
       <div
         ref={containerRef}
         className="fixed inset-0 z-50 overflow-hidden select-none"
+        role="menu"
+        aria-label={currentLevel.title || 'Radial Menu'}
         onMouseMove={handleMouseMove}
+        onPointerUp={handlePointerUp}
         onContextMenu={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -314,17 +385,17 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.12 }}
+          transition={{ duration: settings.reducedMotion ? 0 : 0.12 }}
           className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
           onClick={onClose}
         />
 
         {/* Floating Radial Wheel centered EXACTLY at cursor position */}
         <motion.div
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.65, opacity: 0 }}
-          transition={{ type: 'spring', damping: 26, stiffness: 380 }}
+          initial={settings.reducedMotion ? { opacity: 1 } : { scale: 0.6, opacity: 0 }}
+          animate={settings.reducedMotion ? { opacity: 1 } : { scale: 1, opacity: 1 }}
+          exit={settings.reducedMotion ? { opacity: 0 } : { scale: 0.65, opacity: 0 }}
+          transition={settings.reducedMotion ? { duration: 0 } : { type: 'spring', damping: 26, stiffness: 380 }}
           className="absolute pointer-events-auto"
           style={{
             left: `${clampedX}px`,
@@ -390,11 +461,14 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
                 themeSectorNormal={theme.sectorNormal}
                 themeSectorHover={theme.sectorHover}
                 themeSectorActive={theme.sectorActive}
+                showDirectionHints={settings.showDirectionHints ?? true}
+                reducedMotion={settings.reducedMotion ?? false}
                 onSelect={() => handleItemClick(item)}
                 onHover={() => setHoveredIndex(index)}
               />
             ))}
           </svg>
+
 
           {/* Center Hub Button */}
           <div
@@ -414,7 +488,13 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
                 : '0 4px 20px rgba(0,0,0,0.5)',
             }}
             onClick={handleBack}
-            title={isSubMenu ? 'Click to go back to parent menu' : 'Click to close'}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+              onOpenSettings?.();
+            }}
+            title={isSubMenu ? 'Click to go back to parent menu' : 'Click to close · Right-click for Settings'}
           >
             {currentHoveredItem ? (
               <div className="flex flex-col items-center justify-center text-center px-1.5 select-none animate-in fade-in zoom-in duration-100">
@@ -457,13 +537,34 @@ export const RadialMenuOverlay: React.FC<RadialMenuOverlayProps> = ({
                 <span className="text-[10px] font-bold tracking-tight text-white line-clamp-1 max-w-[80px]">
                   {settings.customRadialName || 'Radial Access'}
                 </span>
-                <span className="text-[8px] text-slate-400 font-mono mt-0.5">
-                  {activeItems.length} slots · [ESC]
+                <span className="text-[8px] text-slate-400 font-mono mt-0.5 flex items-center gap-1">
+                  <span>{activeItems.length} slots</span>
+                  <span>·</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClose();
+                      onOpenSettings?.();
+                    }}
+                    className="hover:text-sky-300 underline flex items-center gap-0.5 text-[8px]"
+                    title="User Settings (Ctrl+, or S)"
+                  >
+                    <Settings className="w-2.5 h-2.5 inline" />
+                    <span>Settings</span>
+                  </button>
                 </span>
               </div>
             )}
           </div>
+
+          {/* Faint Marking Menu & Flick gesture guidance badge */}
+          <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 bg-slate-950/90 backdrop-blur-md border border-slate-800/80 rounded-full text-[10px] text-slate-300 flex items-center gap-1.5 shadow-xl pointer-events-none select-none">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-medium">Hold & Flick to Release · Or Click Slot</span>
+            <span className="text-slate-500 font-mono text-[9px]">[Esc to Cancel]</span>
+          </div>
         </motion.div>
+
 
         {/* Secondary Description Tooltip (Appears when hovering a slot for > 500ms) */}
         <AnimatePresence>

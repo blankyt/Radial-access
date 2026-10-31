@@ -16,6 +16,8 @@ interface RadialSectorProps {
   themeSectorNormal: string;
   themeSectorHover: string;
   themeSectorActive: string;
+  showDirectionHints?: boolean;
+  reducedMotion?: boolean;
   onSelect: () => void;
   onHover: () => void;
 }
@@ -32,6 +34,8 @@ export const RadialSector: React.FC<RadialSectorProps> = ({
   themeAccent,
   themeSectorNormal,
   themeSectorHover,
+  showDirectionHints = true,
+  reducedMotion = false,
   onSelect,
   onHover,
 }) => {
@@ -48,6 +52,11 @@ export const RadialSector: React.FC<RadialSectorProps> = ({
   const iconPos = polarToCartesian(centerX, centerY, midRadius - 8, centerAngle);
   const textPos = polarToCartesian(centerX, centerY, midRadius + labelOffset, centerAngle);
   const badgePos = polarToCartesian(centerX, centerY, outerRadius - 10, centerAngle + sectorSpan * 0.26);
+  const hintPos = polarToCartesian(centerX, centerY, innerRadius + 11, centerAngle);
+
+  // Direction compass label (N, NE, E, SE, S, SW, W, NW)
+  const directionLabels = ['N ↑', 'NE ↗', 'E →', 'SE ↘', 'S ↓', 'SW ↙', 'W ←', 'NW ↖'];
+  const directionLabel = totalSectors === 8 ? directionLabels[index] : `${Math.round(centerAngle)}°`;
 
   const pathD = createSectorPath(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle, totalSectors);
 
@@ -90,8 +99,8 @@ export const RadialSector: React.FC<RadialSectorProps> = ({
         className="transition-all duration-200"
       />
 
-      {/* Subtle expanding ripple wave overlay when slot is hovered */}
-      {isHovered && !isAddSlot && (
+      {/* Subtle expanding ripple wave overlay when slot is hovered (omitted in reduced motion) */}
+      {isHovered && !isAddSlot && !reducedMotion && (
         <path
           key={`ripple-wave-${index}`}
           d={pathD}
@@ -104,7 +113,7 @@ export const RadialSector: React.FC<RadialSectorProps> = ({
       )}
 
       {/* Shimmer highlight stroke along outer rim on hover */}
-      {isHovered && !isAddSlot && (
+      {isHovered && !isAddSlot && !reducedMotion && (
         <path
           d={pathD}
           fill="none"
@@ -115,7 +124,7 @@ export const RadialSector: React.FC<RadialSectorProps> = ({
       )}
 
       {/* Expanding tactile ripple ring behind the icon */}
-      {isHovered && !isAddSlot && (
+      {isHovered && !isAddSlot && !reducedMotion && (
         <circle
           key={`icon-ripple-${index}`}
           cx={iconPos.x}
@@ -129,17 +138,36 @@ export const RadialSector: React.FC<RadialSectorProps> = ({
         />
       )}
 
+      {/* Faint Beginner Flick Direction Hint Vector (N, NE, E...) */}
+      {showDirectionHints && !isAddSlot && (
+        <g transform={`translate(${hintPos.x}, ${hintPos.y})`} className="pointer-events-none select-none opacity-45 hover:opacity-90">
+          <text
+            x={0}
+            y={0}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill={isHovered ? itemColor : 'rgba(148, 163, 184, 0.7)'}
+            fontSize="8"
+            fontFamily="monospace"
+            fontWeight="600"
+            className="tracking-tighter"
+          >
+            {item.directionHint || directionLabel}
+          </text>
+        </g>
+      )}
+
       {/* Sector Icon container */}
       <g transform={`translate(${iconPos.x - iconSize / 2}, ${iconPos.y - iconSize / 2})`}>
         <foreignObject width={iconSize} height={iconSize} className="overflow-visible pointer-events-none">
           <div
-            className="flex items-center justify-center transition-all duration-200"
+            className={`flex items-center justify-center transition-all ${reducedMotion ? 'duration-0' : 'duration-200'}`}
             style={{
               width: `${iconSize}px`,
               height: `${iconSize}px`,
               color: isHovered ? '#ffffff' : itemColor,
               filter: isHovered ? `drop-shadow(0 0 8px ${itemColor})` : undefined,
-              transform: isHovered ? 'scale(1.18)' : 'scale(1)',
+              transform: isHovered && !reducedMotion ? 'scale(1.18)' : 'scale(1)',
             }}
           >
             <DynamicIcon name={item.icon || (isFolder ? 'Folder' : 'Circle')} size={iconSize} />
@@ -190,6 +218,7 @@ export const RadialSector: React.FC<RadialSectorProps> = ({
           </text>
         </g>
       )}
+
     </g>
   );
 };
