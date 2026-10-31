@@ -35,6 +35,7 @@ export interface RadialItem {
   description?: string;
   shortcutKey?: string; // e.g. "1", "W", "Q"
   directionHint?: string; // e.g. "N", "NE", "E", "SE", "S", "SW", "W", "NW"
+  slot?: number; // explicit slot index 0..15 (0-7 inner ring, 8-15 outer ring)
   
   // Specific payloads
   toolId?: string; // e.g. "calculator", "notes", "palette", "timer", "formatter"
@@ -74,7 +75,11 @@ export interface RadialSettings {
   showDirectionLine: boolean;
   showDirectionHints: boolean; // faint flick-direction hints for beginners (N, NE, E...)
   hapticBlip: boolean;
-  sectorCount: number; // 6, 8, 10, 12, 14, 16, or dynamic
+  sectorCount: number; // legacy sector count
+  slotCount: number; // 4 to 16 dynamic slots (4-8 single ring, 9-12 large ring, 13-16 dual concentric rings)
+  layoutMode: 'auto' | 'single' | 'dual'; // 'auto' dynamically switches layout based on slotCount
+  globalHotkey: string; // e.g. "Alt+G" or "Ctrl+Shift+Space"
+  mouseTrigger: string; // "middle_click" | "right_click" | "space_drag"
   autoFitSectors: boolean; // automatically adjust sectors based on items count
   showAddSlotButton: boolean; // show "+ Add Slot" wedge if available slots
   customHotkeysEnabled: boolean;
